@@ -1,4 +1,3 @@
-// js/pdf-viewer.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
 function waitForPDFjs(callback) {
@@ -15,19 +14,13 @@ class FakeLinkService {
   constructor() {
     this._document = null;
   }
-  setDocument(doc) {
-    this._document = doc;
-  }
-  getDestinationHash(dest) {
-    return typeof dest === 'string' ? `#${escape(dest)}` : '';
-  }
-  getAnchorUrl(dest) {
-    return this.getDestinationHash(dest);
-  }
+  setDocument(doc) { this._document = doc; }
+  getDestinationHash(dest) { return typeof dest === 'string' ? `#${escape(dest)}` : ''; }
+  getAnchorUrl(dest) { return this.getDestinationHash(dest); }
   addLinkAttributes() {}
 }
 
-const url = 'pdfs/test.pdf'; // ✅ RUTA CORREGIDA
+const url = 'pdfs/test.pdf';
 let pdfDoc = null;
 let currentPage = 1;
 let renderTask = null;
@@ -81,9 +74,7 @@ function loadPDF() {
     detectFormFields(pdfDoc);
     document.getElementById('user-section').style.display = 'none';
     const pdfControls = document.getElementById('pdf-controls');
-    if (pdfControls) {
-      pdfControls.style.display = 'flex';
-    }
+    if (pdfControls) pdfControls.style.display = 'flex';
     renderPage(currentPage);
   }).catch(err => {
     console.error('[loadPDF] Error al cargar el PDF:', err);
@@ -122,6 +113,8 @@ async function renderPage(num) {
   const scale = 1.0;
   const viewport = page.getViewport({ scale });
 
+  await syncLoadFromBackend(num);
+
   canvas.width = 595;
   canvas.height = 842;
   canvas.style.width = '595px';
@@ -158,10 +151,7 @@ async function renderPage(num) {
   container.appendChild(annotationCanvas);
   loadAnnotation(num, annotationCanvas);
 
-  renderTask = page.render({
-    canvasContext: ctx,
-    viewport
-  });
+  renderTask = page.render({ canvasContext: ctx, viewport });
   await renderTask.promise;
 
   const annotations = await page.getAnnotations({ intent: 'display' });
@@ -173,8 +163,6 @@ async function renderPage(num) {
     const width = x2 - x1;
     const height = y2 - y1;
     const top = viewport.height - y2;
-
-    console.log(`[Campo][Pág ${num}] ${annotation.fieldName} | rect: ${annotation.rect} | CSS: left=${x1}px, top=${top}px`);
 
     const input = document.createElement("input");
     input.type = "text";
@@ -194,6 +182,7 @@ async function renderPage(num) {
       if (!formFieldsCache[num]) formFieldsCache[num] = {};
       formFieldsCache[num][annotation.fieldName] = input.value;
       localStorage.setItem('autra_form_fields', JSON.stringify(formFieldsCache));
+      syncSaveToBackend(num);
     });
 
     annotationLayerDiv.appendChild(input);
@@ -210,11 +199,7 @@ async function renderPage(num) {
     removeTransformRecursively(annotationLayerDiv);
   });
 
-  if (pageInfo) {
-    pageInfo.textContent = `Página ${num} de ${pdfDoc.numPages}`;
-  } else {
-    console.warn('[renderPage] Elemento #page-info no encontrado');
-  }
+  if (pageInfo) pageInfo.textContent = `Página ${num} de ${pdfDoc.numPages}`;
   isRendering = false;
 }
 
@@ -223,23 +208,15 @@ function clearAnnotations() {
 }
 
 function loadCacheFromStorage() {
-  const saved = localStorage.getItem('autra_annotations');
-  if (!saved) return {};
   try {
-    return JSON.parse(saved);
-  } catch {
-    return {};
-  }
+    return JSON.parse(localStorage.getItem('autra_annotations')) || {};
+  } catch { return {}; }
 }
 
 function loadFormFieldsFromStorage() {
-  const saved = localStorage.getItem('autra_form_fields');
-  if (!saved) return {};
   try {
-    return JSON.parse(saved);
-  } catch {
-    return {};
-  }
+    return JSON.parse(localStorage.getItem('autra_form_fields')) || {};
+  } catch { return {}; }
 }
 
 function createAnnotationCanvas(pageNumber, width, height) {
@@ -304,6 +281,7 @@ function saveAnnotation(pageNumber, canvas) {
   historyStack[pageNumber].push(dataURL);
 
   localStorage.setItem('autra_annotations', JSON.stringify(annotationCache));
+  syncSaveToBackend(pageNumber);
 }
 
 function loadAnnotation(pageNumber, canvas) {
@@ -311,9 +289,7 @@ function loadAnnotation(pageNumber, canvas) {
   if (!data) return;
   const ctx = canvas.getContext('2d');
   const img = new Image();
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0);
-  };
+  img.onload = () => ctx.drawImage(img, 0, 0);
   img.src = data;
 }
 
@@ -435,10 +411,7 @@ function downloadAnnotatedPDF() {
 
 const resizeObserver = new ResizeObserver(() => {
   if (!pdfDoc) return;
-  if (isRendering) {
-    console.log('[resizeObserver] Resize ignorado: render en curso');
-    return;
-  }
+  if (isRendering) return;
   renderPage(currentPage);
 });
 resizeObserver.observe(document.getElementById('pdf-container'));
@@ -458,7 +431,6 @@ function prevPage() {
 async function syncSaveToBackend(pageNumber) {
   const studentCode = localStorage.getItem('studentCode');
   if (!studentCode) return;
-
   const formFields = formFieldsCache[pageNumber] || {};
   const annotationData = annotationCache[pageNumber] || null;
 
@@ -492,10 +464,8 @@ async function syncLoadFromBackend(pageNumber) {
     const response = await fetch(`https://autra-backend.onrender.com/api/load-page?studentCode=${studentCode}&page=${pageNumber}`);
     const data = await response.json();
     if (data.success) {
-      // Cargar campos rellenables
       formFieldsCache[pageNumber] = data.formFields || {};
       localStorage.setItem('autra_form_fields', JSON.stringify(formFieldsCache));
-      // Cargar anotación si existe
       if (data.annotation) {
         annotationCache[pageNumber] = data.annotation;
         localStorage.setItem('autra_annotations', JSON.stringify(annotationCache));
@@ -508,14 +478,3 @@ async function syncLoadFromBackend(pageNumber) {
     console.error('[syncLoad] Error al recuperar datos del backend:', err);
   }
 }
-
-// LUEGO EN TU renderPage(num):
-// Al principio de la función:
-await syncLoadFromBackend(num);
-
-// Al final de cada input.addEventListener('input', ...):
-// Justo después del localStorage.setItem(...)
-syncSaveToBackend(num);
-
-// Al final de saveAnnotation():
-syncSaveToBackend(pageNumber);
