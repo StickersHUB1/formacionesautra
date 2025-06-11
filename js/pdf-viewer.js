@@ -454,3 +454,68 @@ function prevPage() {
   currentPage--;
   renderPage(currentPage);
 }
+
+async function syncSaveToBackend(pageNumber) {
+  const studentCode = localStorage.getItem('studentCode');
+  if (!studentCode) return;
+
+  const formFields = formFieldsCache[pageNumber] || {};
+  const annotationData = annotationCache[pageNumber] || null;
+
+  try {
+    const response = await fetch('https://autra-backend.onrender.com/api/save-page', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentCode,
+        page: pageNumber,
+        formFields,
+        annotation: annotationData
+      })
+    });
+    const data = await response.json();
+    if (!data.success) {
+      console.warn('[syncSave] Error en respuesta del servidor:', data.message);
+    } else {
+      console.log(`[syncSave] Página ${pageNumber} sincronizada con éxito.`);
+    }
+  } catch (err) {
+    console.error('[syncSave] Fallo al sincronizar con backend:', err);
+  }
+}
+
+async function syncLoadFromBackend(pageNumber) {
+  const studentCode = localStorage.getItem('studentCode');
+  if (!studentCode) return;
+
+  try {
+    const response = await fetch(`https://autra-backend.onrender.com/api/load-page?studentCode=${studentCode}&page=${pageNumber}`);
+    const data = await response.json();
+    if (data.success) {
+      // Cargar campos rellenables
+      formFieldsCache[pageNumber] = data.formFields || {};
+      localStorage.setItem('autra_form_fields', JSON.stringify(formFieldsCache));
+      // Cargar anotación si existe
+      if (data.annotation) {
+        annotationCache[pageNumber] = data.annotation;
+        localStorage.setItem('autra_annotations', JSON.stringify(annotationCache));
+      }
+      console.log(`[syncLoad] Página ${pageNumber} recuperada del backend.`);
+    } else {
+      console.warn('[syncLoad] No hay datos remotos para esta página.');
+    }
+  } catch (err) {
+    console.error('[syncLoad] Error al recuperar datos del backend:', err);
+  }
+}
+
+// LUEGO EN TU renderPage(num):
+// Al principio de la función:
+await syncLoadFromBackend(num);
+
+// Al final de cada input.addEventListener('input', ...):
+// Justo después del localStorage.setItem(...)
+syncSaveToBackend(num);
+
+// Al final de saveAnnotation():
+syncSaveToBackend(pageNumber);
