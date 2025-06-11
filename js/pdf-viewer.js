@@ -27,7 +27,7 @@ class FakeLinkService {
   addLinkAttributes() {}
 }
 
-const url = '/pdfs/test.pdf';
+const url = 'pdfs/test.pdf'; // ✅ RUTA CORREGIDA
 let pdfDoc = null;
 let currentPage = 1;
 let renderTask = null;
