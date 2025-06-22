@@ -64,40 +64,6 @@
     <p>© 2025 AUTRA. Todos los derechos reservados. Plataforma educativa desarrollada para uso interno. Prohibida su distribución sin autorización.</p>
   </footer>
 
-  <script>
-    function handleLogin(event) {
-      event.preventDefault();
-      const studentCode = document.getElementById("student-code").value.trim();
-      const password = document.getElementById("password").value;
-      const errorMessage = document.getElementById("error-message");
-
-      if (!studentCode || !password) {
-        errorMessage.style.display = "block";
-        errorMessage.textContent = "Por favor, completa todos los campos";
-        return;
-      }
-
-      fetch("api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentCode, password }),
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          localStorage.setItem("studentCode", studentCode);
-          window.location.href = "index.html";
-        } else {
-          errorMessage.style.display = "block";
-          errorMessage.textContent = data.error || "Código o contraseña incorrectos";
-        }
-      })
-      .catch((err) => {
-        console.error("[login] Error:", err);
-        errorMessage.style.display = "block";
-        errorMessage.textContent = "Error al conectar con el servidor";
-      });
-    }
-  </script>
+  <script src="js/login.js"></script>
 </body>
 </html>
