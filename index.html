@@ -121,6 +121,7 @@
   <!-- Librerías -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script src="js/pdf-viewer.js"></script>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const studentCode = localStorage.getItem('studentCode');
@@ -133,6 +134,11 @@
         studentIdElement.textContent = studentCode;
       }
     });
+
+    function logout () {
+      localStorage.removeItem('studentCode');
+      window.location.href = 'login.html'; // redirección relativa correcta
+    }
   </script>
 </body>
 </html>
