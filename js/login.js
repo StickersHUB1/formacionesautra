@@ -1,40 +1,104 @@
-const BACKEND_URL = 'https://autra-backend.onrender.com';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - AUTRA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Inter:wght@300;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header class="autra-header">
+    <div class="autra-logo">
+      <img src="/autra-logo.png" alt="AUTRA Logo" />
+      <h1>AUTRA</h1>
+    </div>
+    <div class="header-right">
+      <h2 class="autra-title">Formación en Vivo</h2>
+    </div>
+  </header>
 
-async function handleLogin(event) {
-  event.preventDefault();
+  <main class="login-container">
+    <div class="login-content">
+<section class="autra-pitch">
+  <h2><i class="fas fa-graduation-cap"></i> Autra Formaciones</h2>
+  <p class="intro-tech">
+    Tecnología de visualización PDF interactiva, evaluación inmediata,
+    trazabilidad por página y herramientas didácticas embebidas.
+  </p>
+  <ul class="features">
+    <li><i class="fas fa-video"></i> Clases en vivo vía Zoom</li>
+    <li><i class="fas fa-check-circle"></i> Corrección automática y en tiempo real</li>
+    <li><i class="fas fa-file-pdf"></i> Tests integrados con campos rellenables</li>
+    <li><i class="fas fa-brain"></i> Sistema de anotaciones con persistencia</li>
+    <li><i class="fas fa-database"></i> Conectado a base de datos MongoDB</li>
+    <li><i class="fas fa-code-branch"></i> Arquitectura modular preparada para escalar</li>
+  </ul>
+  <a class="more-info-btn" href="/info-formaciones.html">
+    <i class="fas fa-circle-info"></i> Más información
+  </a>
+</section>
 
-  const studentCode = document.getElementById('student-code').value.trim().toUpperCase();
-  const password = document.getElementById('password').value.trim();
-  const errorMessage = document.getElementById('error-message');
 
-  if (!/^[A-Z0-9]+$/.test(studentCode)) {
-    errorMessage.textContent = 'Código inválido (solo letras y números)';
-    errorMessage.style.display = 'block';
-    return;
-  }
+      <section class="login-box">
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <h2><i class="fas fa-user"></i> Inicio de Sesión</h2>
+          <div class="input-group">
+            <label for="student-code">Código de Alumno:</label>
+            <input type="text" id="student-code" placeholder="Ingresa tu código" required />
+          </div>
+          <div class="input-group">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" placeholder="Contraseña" required />
+          </div>
+          <button type="submit" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+          </button>
+          <p id="error-message" style="display: none;"></p>
+        </form>
+      </section>
+    </div>
+  </main>
 
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentCode, password })
-    });
+  <footer class="autra-footer">
+    <p>© 2025 AUTRA. Todos los derechos reservados. Plataforma educativa desarrollada para uso interno. Prohibida su distribución sin autorización.</p>
+  </footer>
 
-    const data = await response.json();
+  <script>
+    function handleLogin(event) {
+      event.preventDefault();
+      const studentCode = document.getElementById("student-code").value.trim();
+      const password = document.getElementById("password").value;
+      const errorMessage = document.getElementById("error-message");
 
-    if (data.success) {
-      console.log('🟢 Login exitoso, studentCode:', data.studentCode);
-      localStorage.setItem('studentCode', data.studentCode);
-      window.location.href = 'index.html'; // usar ruta relativa
-    } else {
-      console.warn('🔴 Login fallido:', data.message);
-      errorMessage.textContent = data.message || 'Credenciales inválidas';
-      errorMessage.style.display = 'block';
+      if (!studentCode || !password) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "Por favor, completa todos los campos";
+        return;
+      }
+
+      fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentCode, password }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            localStorage.setItem("studentCode", studentCode);
+            window.location.href = "/index.html";
+          } else {
+            errorMessage.style.display = "block";
+            errorMessage.textContent = data.error || "Código o contraseña incorrectos";
+          }
+        })
+        .catch((err) => {
+          console.error("[login] Error:", err);
+          errorMessage.style.display = "block";
+          errorMessage.textContent = "Error al conectar con el servidor";
+        });
     }
-
-  } catch (error) {
-    console.error('🔥 Error de conexión con backend:', error);
-    errorMessage.textContent = 'Error de conexión con el servidor';
-    errorMessage.style.display = 'block';
-  }
-}
+  </script>
+</body>
+</html>
