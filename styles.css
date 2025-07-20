@@ -269,18 +269,17 @@ html, body {
 }
 
 #pdf-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid rgba(171, 200, 233, 0.7);
-  box-shadow: 0 2px 25px rgba(171, 200, 233, 0.5);
-  border-radius: 8px;
-  margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(171, 200, 233, 0.7);
+    box-shadow: 0 2px 25px rgba(171, 200, 233, 0.5);
+    border-radius: 8px;
 }
 
 #pdf-controls button {
