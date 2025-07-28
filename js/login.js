@@ -25,7 +25,7 @@ async function handleLogin(event) {
     if (data.success) {
       console.log('🟢 Login exitoso, studentCode:', data.studentCode);
       localStorage.setItem('studentCode', data.studentCode);
-      window.location.href = 'index.html'; // usar ruta relativa
+      document.getElementById('device-modal').style.display = 'flex';
     } else {
       console.warn('🔴 Login fallido:', data.message);
       errorMessage.textContent = data.message || 'Credenciales inválidas';
@@ -37,4 +37,8 @@ async function handleLogin(event) {
     errorMessage.textContent = 'Error de conexión con el servidor';
     errorMessage.style.display = 'block';
   }
+}
+
+function redirectTo(url) {
+  window.location.href = url;
 }
