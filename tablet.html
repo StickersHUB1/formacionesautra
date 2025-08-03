@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablet - Formación en Vivo</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header class="autra-header">
+    <div class="autra-logo">
+      <img src="autra-logo.png" alt="AUTRA Logo" />
+      <h1>AUTRA</h1>
+    </div>
+    <div class="header-right">
+      <h2 class="autra-title">Modo Tablet - Formación en Vivo</h2>
+      <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </div>
+  </header>
+
+  <div id="container" style="flex-direction: column; overflow-y: auto;">
+    <!-- Zoom arriba -->
+    <section id="left-panel" style="width: 100%; min-width: unset; height: 40vh;">
+      <h2><i class="fas fa-video"></i> Clase en Vivo (Zoom)</h2>
+      <div id="zoom-container">
+        <iframe
+          src="https://zoom.us/wc/join/88038634170"
+          allow="camera; microphone; fullscreen; display-capture"
+          frameborder="0"
+          width="100%"
+          height="100%"
+        ></iframe>
+      </div>
+    </section>
+
+    <!-- PDF abajo -->
+    <main id="right-panel" style="width: 100%; flex: 1; overflow-y: auto;">
+      <div id="test-header">
+        <h2><i class="fas fa-file-pdf"></i> Mi Test</h2>
+        <span class="student-code">Código de Alumno: <strong id="student-id"></strong></span>
+        <div id="pdf-controls">
+          <button onclick="prevPage()" title="Página anterior"><i class="fas fa-arrow-left"></i></button>
+          <span id="page-info">Página 1 / 17</span>
+          <button onclick="nextPage()" title="Página siguiente"><i class="fas fa-arrow-right"></i></button>
+          <div class="sidebar-nav">
+            <input type="number" id="goToPageInput" min="1" placeholder="Página" />
+            <button onclick="goToPage()" title="Ir a página">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="user-section">
+        <button class="start-btn" onclick="loadPDF()"><i class="fas fa-play"></i> Comenzar</button>
+      </div>
+
+      <div id="pdf-container">
+        <canvas id="pdf-render"></canvas>
+        <canvas id="annotationCanvas" class="annotationCanvas"></canvas>
+      </div>
+    </main>
+  </div>
+
+  <!-- Herramientas flotantes abajo -->
+  <div id="sidebar" class="sidebar" style="bottom: 10px; left: 50%; transform: translateX(-50%);">
+    <button class="sidebar-btn" onclick="toggleDrawingMode()" title="Dibujar"><i class="fas fa-pen"></i></button>
+    <button class="sidebar-btn" onclick="toggleColorPicker()" title="Color"><i class="fas fa-palette"></i></button>
+    <div id="color-picker" class="color-picker" style="display: none;">
+      <input type="color" id="colorInput" onchange="setColor(this.value)" />
+    </div>
+    <button class="sidebar-btn" onclick="toggleSizePicker()" title="Grosor"><i class="fas fa-text-height"></i></button>
+    <div id="size-picker" class="size-picker" style="display: none;">
+      <input type="range" id="sizeInput" min="1" max="10" value="3" />
+    </div>
+    <button class="sidebar-btn" onclick="clearCanvas()" title="Limpiar"><i class="fas fa-trash"></i></button>
+    <button class="sidebar-btn" onclick="undoCanvas()" title="Deshacer"><i class="fas fa-undo"></i></button>
+    <button class="sidebar-btn" onclick="downloadAnnotatedPDF()" title="Descargar"><i class="fas fa-download"></i></button>
+    <button class="sidebar-btn" onclick="toggleHighlightMode()" title="Resaltar"><i class="fas fa-highlighter"></i></button>
+    <button class="sidebar-btn" onclick="toggleThumbnails()" title="Miniaturas"><i class="fas fa-th"></i></button>
+  </div>
+
+  <div id="thumbnails-modal" class="thumbnails-modal" style="display: none;">
+    <div id="thumbnails-container"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="js/pdf-viewer.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const studentCode = localStorage.getItem('studentCode');
+      if (!studentCode) {
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('student-id').textContent = studentCode;
+    });
+
+    function logout() {
+      localStorage.removeItem('studentCode');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>
