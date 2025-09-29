@@ -48,25 +48,22 @@
       </div>
     </aside>
 
-        <!-- Panel derecho: PDF -->
+    <!-- Panel derecho: PDF -->
     <main id="right-panel">
       <div id="test-header">
         <h2><i class="fas fa-file-pdf"></i> Mi Test</h2>
         <span class="student-code">Código de Alumno: <strong id="student-id"></strong></span>
-<div id="pdf-controls" style="display: flex;">
+        <div id="pdf-controls" style="display: flex;">
           <button onclick="prevPage()" title="Página anterior"><i class="fas fa-arrow-left"></i></button>
           <span id="page-info">Página 0 / 0</span>
           <button onclick="nextPage()" title="Página siguiente"><i class="fas fa-arrow-right"></i></button>
-          <div class="sidebar-nav" style="
-    display: inline-flex;
-">
+          <div class="sidebar-nav" style="display: inline-flex;">
             <input type="number" id="goToPageInput" min="1" placeholder="Página" title="Ir a página">
             <button class="sidebar-btn" onclick="goToPage()" title="Ir a página">
               <i class="fas fa-arrow-right"></i>
             </button>
           </div>
         </div>
-        
       </div>
 
       <div id="user-section">
@@ -114,6 +111,11 @@
       <div id="thumbnails-modal" class="thumbnails-modal" style="display: none;">
         <div id="thumbnails-container"></div>
       </div>
+
+      <!-- 🔹 Nuevo botón Mi Perfil -->
+      <button class="sidebar-btn" onclick="window.location.href='perfil.html'" title="Mi Perfil">
+        <i class="fas fa-user"></i>
+      </button>
     </div>
   </div>
   
@@ -145,4 +147,3 @@
   </script>
 </body>
 </html>
-
